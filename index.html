@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CatchUp 온보딩 Cold-start UX 실험</title>
+<style>
+  :root{
+    --bg:#f6f7f9; --surface:#ffffff; --line:#e6e8ec; --line-strong:#d3d7de;
+    --text:#1a1c20; --text-sub:#5b616b; --text-mute:#8b9098;
+    --brand:#3b5bdb; --brand-soft:#eef1fd; --accent:#0ca678; --accent-soft:#e6f7f1;
+    --radius:14px; --shadow:0 1px 2px rgba(20,23,28,.04),0 8px 24px rgba(20,23,28,.06);
+    --maxw:1180px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg); color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Malgun Gothic",
+      "Helvetica Neue",Arial,sans-serif;
+    line-height:1.5; -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit}
+  .wrap{max-width:var(--maxw); margin:0 auto; padding:0 20px}
+
+  /* Header */
+  header.top{
+    background:linear-gradient(180deg,#fff 0%,#fbfcfe 100%);
+    border-bottom:1px solid var(--line);
+  }
+  .top-inner{padding:34px 0 26px}
+  .eyebrow{
+    display:inline-block; font-size:12px; font-weight:600; letter-spacing:.04em;
+    color:var(--brand); background:var(--brand-soft); padding:5px 11px; border-radius:999px;
+  }
+  h1{font-size:26px; line-height:1.25; margin:14px 0 8px; letter-spacing:-.01em}
+  .lede{font-size:15px; color:var(--text-sub); max-width:720px; margin:0}
+  .meta{margin-top:16px; font-size:13px; color:var(--text-mute); display:flex; gap:16px; flex-wrap:wrap}
+  .meta b{color:var(--text-sub); font-weight:600}
+
+  /* Problem callout */
+  .callout{
+    margin-top:20px; background:var(--surface); border:1px solid var(--line);
+    border-radius:var(--radius); padding:16px 18px; box-shadow:var(--shadow); max-width:760px;
+  }
+  .callout h3{margin:0 0 6px; font-size:13px; color:var(--text-mute); font-weight:600; letter-spacing:.02em}
+  .callout p{margin:0; font-size:14px; color:var(--text-sub)}
+  .callout .hl{color:var(--text); font-weight:600}
+
+  /* Tabs */
+  .tabbar-outer{position:sticky; top:0; z-index:20; background:rgba(246,247,249,.86);
+    backdrop-filter:saturate(160%) blur(8px); border-bottom:1px solid var(--line)}
+  .tabbar{display:flex; gap:6px; padding:10px 0; overflow-x:auto}
+  .tab{
+    flex:0 0 auto; cursor:pointer; border:1px solid var(--line); background:var(--surface);
+    border-radius:11px; padding:9px 13px; display:flex; align-items:center; gap:9px;
+    font-size:13px; color:var(--text-sub); transition:all .14s ease; white-space:nowrap;
+  }
+  .tab:hover{border-color:var(--line-strong); color:var(--text)}
+  .tab .num{
+    width:20px; height:20px; border-radius:6px; background:var(--bg); color:var(--text-mute);
+    font-size:11px; font-weight:700; display:grid; place-items:center; flex:0 0 auto;
+  }
+  .tab.active{background:var(--brand); border-color:var(--brand); color:#fff; box-shadow:var(--shadow)}
+  .tab.active .num{background:rgba(255,255,255,.22); color:#fff}
+
+  /* Panel */
+  main{padding:22px 0 56px}
+  .panel{display:none}
+  .panel.active{display:block; animation:fade .22s ease}
+  @keyframes fade{from{opacity:0; transform:translateY(4px)}to{opacity:1; transform:none}}
+
+  .panel-head{display:flex; justify-content:space-between; align-items:flex-start; gap:16px; margin-bottom:14px; flex-wrap:wrap}
+  .panel-head .titles{min-width:260px; flex:1}
+  .chip{display:inline-block; font-size:11px; font-weight:700; letter-spacing:.03em; color:var(--accent);
+    background:var(--accent-soft); padding:4px 9px; border-radius:999px; margin-bottom:8px}
+  .panel-head h2{margin:0 0 6px; font-size:19px; letter-spacing:-.01em}
+  .hyp{font-size:14px; color:var(--text-sub); margin:0; max-width:760px}
+  .hyp b{color:var(--text)}
+  .actions{display:flex; gap:8px; flex:0 0 auto}
+  .btn{
+    display:inline-flex; align-items:center; gap:7px; font-size:13px; font-weight:600;
+    border-radius:10px; padding:9px 14px; cursor:pointer; text-decoration:none; border:1px solid var(--line-strong);
+    background:var(--surface); color:var(--text); transition:all .14s ease;
+  }
+  .btn:hover{border-color:var(--brand); color:var(--brand)}
+  .btn.primary{background:var(--brand); border-color:var(--brand); color:#fff}
+  .btn.primary:hover{filter:brightness(1.06); color:#fff}
+
+  .frame-shell{
+    background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
+    box-shadow:var(--shadow); overflow:hidden;
+  }
+  .frame-bar{display:flex; align-items:center; gap:7px; padding:11px 14px; border-bottom:1px solid var(--line); background:#fbfcfe}
+  .dot{width:11px; height:11px; border-radius:50%}
+  .dot.r{background:#ff5f57}.dot.y{background:#febc2e}.dot.g{background:#28c840}
+  .frame-url{margin-left:8px; font-size:12px; color:var(--text-mute); font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  .frame-load{margin-left:auto; font-size:12px; color:var(--text-mute)}
+  iframe{width:100%; height:78vh; min-height:560px; border:0; display:block; background:#fff}
+
+  footer{border-top:1px solid var(--line); padding:24px 0 40px; color:var(--text-mute); font-size:13px}
+  footer a{color:var(--brand); text-decoration:none}
+  @media (max-width:640px){
+    h1{font-size:22px} iframe{height:70vh}
+    .actions{width:100%} .btn{flex:1; justify-content:center}
+  }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap top-inner">
+    <span class="eyebrow">UX EXPERIMENTS · 온보딩</span>
+    <h1>CatchUp 온보딩 Cold-start UX 실험</h1>
+    <p class="lede">조직 협업툴이 연동되기 전 "빈 깡통" 상태에서, 사용자가 가치를 경험하기 전에 설정 부담을 먼저 지는 문제를 어떻게 풀 것인가. 5개 설계 가설을 주제별로 비교합니다.</p>
+    <div class="meta">
+      <span><b>제약</b> 최소 1개 커넥터 · 본인 계정 매핑 · 사내 80% 매핑 시 임베딩 활성</span>
+      <span><b>대상</b> 신규 루트어드민 첫 진입</span>
+    </div>
+    <div class="callout">
+      <h3>핵심 UX 난제</h3>
+      <p><span class="hl">가치를 경험하기 전에 설정 부담을 먼저 요구</span>한다. 각 실험은 이 부담을 낮추거나, 부담 이전에 동기를 심는 서로 다른 전략이다.</p>
+    </div>
+  </div>
+</header>
+
+<div class="tabbar-outer">
+  <div class="wrap">
+    <div class="tabbar" id="tabbar"></div>
+  </div>
+</div>
+
+<main class="wrap" id="panels"></main>
+
+<footer>
+  <div class="wrap">
+    제작 · CatchUp Design · 각 실험은 독립 실행형 인터랙티브 목업입니다. 카드를 클릭해 상태 전환을 직접 확인하세요.
+  </div>
+</footer>
+
+<script>
+const EXPERIMENTS = [
+  {
+    n:1, file:"experiment-1-value-preview.html",
+    tab:"가치 미리보기",
+    chip:"VALUE-FIRST",
+    title:"실험 1 · 연동 전 데모 답변 (Value-first preview)",
+    hyp:"연동 전에 <b>‘연동하면 이런 답을 받습니다’</b>를 샘플 답변·출처 카드로 미리 보여주면 설정 동기가 유지된다."
+  },
+  {
+    n:2, file:"experiment-2-progressive.html",
+    tab:"점진형 온보딩",
+    chip:"PROGRESSIVE",
+    title:"실험 2 · 점진형 온보딩 (Progressive)",
+    hyp:"4개를 한 번에 요구하지 않고 <b>‘1개만 먼저’</b> 연동시켜 작은 성공을 준 뒤 점진적으로 유도하면 완주율이 오른다."
+  },
+  {
+    n:3, file:"experiment-3-mapping-dashboard.html",
+    tab:"80% 매핑 대시보드",
+    chip:"TEAM PROGRESS",
+    title:"실험 3 · 80% 계정 매핑 대시보드",
+    hyp:"‘80% 매핑 시 임베딩 활성’ 조건을 <b>어드민이 팀원을 독려하는 진척 대시보드</b>로 풀면 cold-start가 빨라진다."
+  },
+  {
+    n:4, file:"experiment-4-empty-state.html",
+    tab:"빈 상태 가이드",
+    chip:"EMPTY STATE",
+    title:"실험 4 · 빈 화면을 가이드로 (Empty state as guide)",
+    hyp:"빈 홈을 ‘비어있음’이 아니라 <b>‘다음 할 일’</b>로 재정의하면 이탈이 준다. 연동·매핑 단계별 빈 상태를 가이드 화면으로."
+  },
+  {
+    n:5, file:"experiment-5-ab-comparison.html",
+    tab:"모달 vs 인라인 A/B",
+    chip:"A/B",
+    title:"실험 5 · 온보딩 모달 vs 인라인 (A/B 비교)",
+    hyp:"같은 온보딩을 <b>(A) 중앙 모달</b>과 <b>(B) 홈 인라인 배너+카드</b>로 제시했을 때 완주율·이탈이 어떻게 다른가."
+  }
+];
+
+const tabbar = document.getElementById('tabbar');
+const panels = document.getElementById('panels');
+
+EXPERIMENTS.forEach((e, i)=>{
+  const tab = document.createElement('button');
+  tab.className = 'tab' + (i===0?' active':'');
+  tab.dataset.idx = i;
+  tab.innerHTML = `<span class="num">${e.n}</span>${e.tab}`;
+  tab.addEventListener('click', ()=>activate(i));
+  tabbar.appendChild(tab);
+
+  const panel = document.createElement('section');
+  panel.className = 'panel' + (i===0?' active':'');
+  panel.dataset.idx = i;
+  panel.innerHTML = `
+    <div class="panel-head">
+      <div class="titles">
+        <span class="chip">${e.chip}</span>
+        <h2>${e.title}</h2>
+        <p class="hyp"><b>가설</b> · ${e.hyp}</p>
+      </div>
+      <div class="actions">
+        <a class="btn" href="${encodeURI(e.file)}" target="_blank" rel="noopener">↗ 새 탭에서 열기</a>
+      </div>
+    </div>
+    <div class="frame-shell">
+      <div class="frame-bar">
+        <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+        <span class="frame-url">/${encodeURI(e.file)}</span>
+        <span class="frame-load" id="load-${i}">불러오는 중…</span>
+      </div>
+      <iframe data-src="${encodeURI(e.file)}" title="${e.title}" loading="lazy"></iframe>
+    </div>`;
+  panels.appendChild(panel);
+});
+
+function loadFrame(i){
+  const panel = panels.querySelector(`.panel[data-idx="${i}"]`);
+  const frame = panel.querySelector('iframe');
+  if(!frame.src){
+    frame.src = frame.dataset.src;
+    frame.addEventListener('load', ()=>{
+      const l = document.getElementById('load-'+i); if(l) l.textContent='';
+    });
+  }
+}
+
+function activate(i){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', +t.dataset.idx===i));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active', +p.dataset.idx===i));
+  loadFrame(i);
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+// load first frame on start
+loadFrame(0);
+</script>
+</body>
+</html>
