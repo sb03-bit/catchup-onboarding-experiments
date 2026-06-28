@@ -6,232 +6,405 @@
 <title>CatchUp 온보딩 Cold-start UX 실험</title>
 <style>
   :root{
-    --bg:#f6f7f9; --surface:#ffffff; --line:#e6e8ec; --line-strong:#d3d7de;
-    --text:#1a1c20; --text-sub:#5b616b; --text-mute:#8b9098;
-    --brand:#3b5bdb; --brand-soft:#eef1fd; --accent:#0ca678; --accent-soft:#e6f7f1;
-    --radius:14px; --shadow:0 1px 2px rgba(20,23,28,.04),0 8px 24px rgba(20,23,28,.06);
-    --maxw:1180px;
+    --bg:#f4f5f7; --surface:#fff; --line:#e6e8ec; --line-2:#d3d7de;
+    --text:#1a1c20; --sub:#5b616b; --mute:#8b9098;
+    --brand:#3b5bdb; --brand-soft:#eef1fd; --brand-2:#2f49b8;
+    --ok:#0ca678; --ok-soft:#e6f7f1; --warn:#e8920c; --warn-soft:#fdf3e2; --danger:#e03131; --danger-soft:#fdecec;
+    --r:14px; --r-s:10px; --shadow:0 1px 2px rgba(20,23,28,.05),0 10px 30px rgba(20,23,28,.07);
+    --maxw:1140px;
   }
   *{box-sizing:border-box}
-  html,body{margin:0;padding:0}
-  body{
-    background:var(--bg); color:var(--text);
-    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Malgun Gothic",
-      "Helvetica Neue",Arial,sans-serif;
-    line-height:1.5; -webkit-font-smoothing:antialiased;
-  }
-  a{color:inherit}
-  .wrap{max-width:var(--maxw); margin:0 auto; padding:0 20px}
+  body{margin:0;background:var(--bg);color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Malgun Gothic",Arial,sans-serif;line-height:1.5;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 20px}
+  button{font-family:inherit}
 
-  /* Header */
-  header.top{
-    background:linear-gradient(180deg,#fff 0%,#fbfcfe 100%);
-    border-bottom:1px solid var(--line);
-  }
-  .top-inner{padding:34px 0 26px}
-  .eyebrow{
-    display:inline-block; font-size:12px; font-weight:600; letter-spacing:.04em;
-    color:var(--brand); background:var(--brand-soft); padding:5px 11px; border-radius:999px;
-  }
-  h1{font-size:26px; line-height:1.25; margin:14px 0 8px; letter-spacing:-.01em}
-  .lede{font-size:15px; color:var(--text-sub); max-width:720px; margin:0}
-  .meta{margin-top:16px; font-size:13px; color:var(--text-mute); display:flex; gap:16px; flex-wrap:wrap}
-  .meta b{color:var(--text-sub); font-weight:600}
+  header.top{background:linear-gradient(180deg,#fff,#fbfcfe);border-bottom:1px solid var(--line)}
+  .top-in{padding:30px 0 24px}
+  .eyebrow{display:inline-block;font-size:12px;font-weight:600;letter-spacing:.04em;color:var(--brand);background:var(--brand-soft);padding:5px 11px;border-radius:999px}
+  h1{font-size:25px;margin:13px 0 8px;letter-spacing:-.01em}
+  .lede{font-size:15px;color:var(--sub);max-width:730px;margin:0}
+  .callout{margin-top:16px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;box-shadow:var(--shadow);max-width:760px}
+  .callout h3{margin:0 0 5px;font-size:12px;color:var(--mute);font-weight:600;letter-spacing:.02em}
+  .callout p{margin:0;font-size:14px;color:var(--sub)}
+  .callout b{color:var(--text)}
 
-  /* Problem callout */
-  .callout{
-    margin-top:20px; background:var(--surface); border:1px solid var(--line);
-    border-radius:var(--radius); padding:16px 18px; box-shadow:var(--shadow); max-width:760px;
-  }
-  .callout h3{margin:0 0 6px; font-size:13px; color:var(--text-mute); font-weight:600; letter-spacing:.02em}
-  .callout p{margin:0; font-size:14px; color:var(--text-sub)}
-  .callout .hl{color:var(--text); font-weight:600}
+  .tabbar-outer{position:sticky;top:0;z-index:30;background:rgba(244,245,247,.88);backdrop-filter:saturate(160%) blur(8px);border-bottom:1px solid var(--line)}
+  .tabbar{display:flex;gap:6px;padding:10px 0;overflow-x:auto}
+  .tab{flex:0 0 auto;cursor:pointer;border:1px solid var(--line);background:var(--surface);border-radius:11px;padding:9px 13px;display:flex;align-items:center;gap:9px;font-size:13px;color:var(--sub);white-space:nowrap;transition:.14s}
+  .tab:hover{border-color:var(--line-2);color:var(--text)}
+  .tab .n{width:20px;height:20px;border-radius:6px;background:var(--bg);color:var(--mute);font-size:11px;font-weight:700;display:grid;place-items:center}
+  .tab.active{background:var(--brand);border-color:var(--brand);color:#fff;box-shadow:var(--shadow)}
+  .tab.active .n{background:rgba(255,255,255,.22);color:#fff}
 
-  /* Tabs */
-  .tabbar-outer{position:sticky; top:0; z-index:20; background:rgba(246,247,249,.86);
-    backdrop-filter:saturate(160%) blur(8px); border-bottom:1px solid var(--line)}
-  .tabbar{display:flex; gap:6px; padding:10px 0; overflow-x:auto}
-  .tab{
-    flex:0 0 auto; cursor:pointer; border:1px solid var(--line); background:var(--surface);
-    border-radius:11px; padding:9px 13px; display:flex; align-items:center; gap:9px;
-    font-size:13px; color:var(--text-sub); transition:all .14s ease; white-space:nowrap;
-  }
-  .tab:hover{border-color:var(--line-strong); color:var(--text)}
-  .tab .num{
-    width:20px; height:20px; border-radius:6px; background:var(--bg); color:var(--text-mute);
-    font-size:11px; font-weight:700; display:grid; place-items:center; flex:0 0 auto;
-  }
-  .tab.active{background:var(--brand); border-color:var(--brand); color:#fff; box-shadow:var(--shadow)}
-  .tab.active .num{background:rgba(255,255,255,.22); color:#fff}
+  main{padding:22px 0 60px}
+  .panel{display:none}.panel.active{display:block;animation:f .22s ease}
+  @keyframes f{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .phead{margin-bottom:14px}
+  .chip{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.03em;color:var(--ok);background:var(--ok-soft);padding:4px 9px;border-radius:999px;margin-bottom:8px}
+  .phead h2{margin:0 0 6px;font-size:19px;letter-spacing:-.01em}
+  .hyp{font-size:14px;color:var(--sub);margin:0;max-width:780px}.hyp b{color:var(--text)}
 
-  /* Panel */
-  main{padding:22px 0 56px}
-  .panel{display:none}
-  .panel.active{display:block; animation:fade .22s ease}
-  @keyframes fade{from{opacity:0; transform:translateY(4px)}to{opacity:1; transform:none}}
+  /* App canvas (mock product surface) */
+  .stage{display:grid;grid-template-columns:1fr;gap:16px}
+  @media(min-width:920px){.stage.two{grid-template-columns:1.3fr .9fr}}
+  .app{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden}
+  .appbar{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--line);background:#fbfcfe;font-size:12px;color:var(--mute)}
+  .dot{width:10px;height:10px;border-radius:50%}.dot.r{background:#ff5f57}.dot.y{background:#febc2e}.dot.g{background:#28c840}
+  .brand-mini{margin-left:6px;font-weight:700;color:var(--text);font-size:13px;letter-spacing:-.01em}
+  .body{padding:22px}
+  .center{min-height:300px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
 
-  .panel-head{display:flex; justify-content:space-between; align-items:flex-start; gap:16px; margin-bottom:14px; flex-wrap:wrap}
-  .panel-head .titles{min-width:260px; flex:1}
-  .chip{display:inline-block; font-size:11px; font-weight:700; letter-spacing:.03em; color:var(--accent);
-    background:var(--accent-soft); padding:4px 9px; border-radius:999px; margin-bottom:8px}
-  .panel-head h2{margin:0 0 6px; font-size:19px; letter-spacing:-.01em}
-  .hyp{font-size:14px; color:var(--text-sub); margin:0; max-width:760px}
-  .hyp b{color:var(--text)}
-  .actions{display:flex; gap:8px; flex:0 0 auto}
-  .btn{
-    display:inline-flex; align-items:center; gap:7px; font-size:13px; font-weight:600;
-    border-radius:10px; padding:9px 14px; cursor:pointer; text-decoration:none; border:1px solid var(--line-strong);
-    background:var(--surface); color:var(--text); transition:all .14s ease;
-  }
-  .btn:hover{border-color:var(--brand); color:var(--brand)}
-  .btn.primary{background:var(--brand); border-color:var(--brand); color:#fff}
-  .btn.primary:hover{filter:brightness(1.06); color:#fff}
+  /* generic UI atoms */
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;font-size:13.5px;font-weight:600;border-radius:var(--r-s);padding:10px 16px;cursor:pointer;border:1px solid var(--line-2);background:var(--surface);color:var(--text);transition:.14s}
+  .btn:hover{border-color:var(--brand);color:var(--brand)}
+  .btn.pri{background:var(--brand);border-color:var(--brand);color:#fff}.btn.pri:hover{background:var(--brand-2);color:#fff}
+  .btn.sm{padding:7px 11px;font-size:12.5px}
+  .btn.ghost{border-color:transparent;background:transparent;color:var(--sub)}
+  .btn:disabled{opacity:.5;cursor:not-allowed}
+  .note{font-size:13px;color:var(--mute)}
+  .h-title{font-size:18px;font-weight:700;margin:0 0 6px;letter-spacing:-.01em}
+  .h-sub{font-size:14px;color:var(--sub);margin:0 0 18px;max-width:420px}
+  .src{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:10px;padding:9px 11px;font-size:12.5px;color:var(--sub);background:#fbfcfe}
+  .src .ic{width:18px;height:18px;border-radius:5px;display:grid;place-items:center;color:#fff;font-size:10px;font-weight:700;flex:0 0 auto}
+  .ic.jira{background:#2684ff}.ic.slack{background:#611f69}.ic.conf{background:#1868db}.ic.git{background:#1f2328}
+  .bar{height:9px;border-radius:999px;background:#eef0f3;overflow:hidden}
+  .bar > i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--brand),#5b78ed);transition:width .6s cubic-bezier(.3,.8,.3,1)}
+  .bar.ok > i{background:linear-gradient(90deg,var(--ok),#34c79a)}
+  .pill{font-size:11px;font-weight:700;padding:3px 8px;border-radius:999px}
+  .pill.ok{color:var(--ok);background:var(--ok-soft)}.pill.warn{color:var(--warn);background:var(--warn-soft)}.pill.mute{color:var(--mute);background:var(--bg)}
 
-  .frame-shell{
-    background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
-    box-shadow:var(--shadow); overflow:hidden;
-  }
-  .frame-bar{display:flex; align-items:center; gap:7px; padding:11px 14px; border-bottom:1px solid var(--line); background:#fbfcfe}
-  .dot{width:11px; height:11px; border-radius:50%}
-  .dot.r{background:#ff5f57}.dot.y{background:#febc2e}.dot.g{background:#28c840}
-  .frame-url{margin-left:8px; font-size:12px; color:var(--text-mute); font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
-  .frame-load{margin-left:auto; font-size:12px; color:var(--text-mute)}
-  iframe{width:100%; height:78vh; min-height:560px; border:0; display:block; background:#fff}
+  .qchip{display:block;width:100%;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:14px 15px;font-size:14px;color:var(--text);cursor:pointer;transition:.14s;margin-bottom:10px}
+  .qchip:hover{border-color:var(--brand);box-shadow:var(--shadow);transform:translateY(-1px)}
+  .qchip small{display:block;color:var(--mute);font-size:12px;margin-top:3px}
 
-  footer{border-top:1px solid var(--line); padding:24px 0 40px; color:var(--text-mute); font-size:13px}
-  footer a{color:var(--brand); text-decoration:none}
-  @media (max-width:640px){
-    h1{font-size:22px} iframe{height:70vh}
-    .actions{width:100%} .btn{flex:1; justify-content:center}
-  }
+  .locked-answer{position:relative;border:1px solid var(--line);border-radius:12px;padding:18px;overflow:hidden}
+  .blur{filter:blur(5px);user-select:none;pointer-events:none}
+  .lockmask{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:12px;background:rgba(255,255,255,.62);backdrop-filter:blur(1px)}
+  .lockmask .lk{width:42px;height:42px;border-radius:12px;background:var(--brand-soft);color:var(--brand);display:grid;place-items:center;font-size:20px}
+
+  .stepdots{display:flex;gap:7px;margin-bottom:18px}
+  .stepdots i{height:6px;border-radius:999px;background:#e3e6ea;flex:1;transition:.3s}
+  .stepdots i.on{background:var(--brand)}.stepdots i.done{background:var(--ok)}
+
+  .conn{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:12px;padding:13px 14px;margin-bottom:10px}
+  .conn .ic{width:34px;height:34px;border-radius:9px;font-size:13px}
+  .conn .meta{flex:1;min-width:0}.conn .meta b{font-size:14px}.conn .meta div{font-size:12px;color:var(--mute)}
+
+  .row{display:flex;align-items:center;gap:12px;padding:11px 2px;border-bottom:1px solid var(--line)}
+  .row:last-child{border-bottom:0}
+  .avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#dfe3ea,#c7ccd6);display:grid;place-items:center;font-size:12px;font-weight:700;color:#5b616b;flex:0 0 auto}
+
+  .seg{display:inline-flex;border:1px solid var(--line-2);border-radius:10px;overflow:hidden;margin-bottom:16px}
+  .seg button{border:0;background:var(--surface);padding:8px 14px;font-size:13px;color:var(--sub);cursor:pointer}
+  .seg button.on{background:var(--brand);color:#fff;font-weight:600}
+
+  /* modal mock */
+  .scrim{position:relative;border-radius:var(--r);min-height:360px;background:#eef0f4;overflow:hidden;border:1px solid var(--line)}
+  .home-skel{padding:18px}
+  .skel{height:12px;border-radius:6px;background:#e1e4e9;margin-bottom:10px}
+  .modal{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(360px,86%);background:#fff;border-radius:16px;box-shadow:0 18px 50px rgba(20,23,28,.28);padding:20px;text-align:center}
+  .banner{margin:0 14px;background:var(--warn-soft);border:1px solid #f3d9a8;border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:10px;font-size:13px;color:#8a5a0a}
+  .toast{display:inline-flex;align-items:center;gap:8px;background:var(--ok-soft);color:#0a7c5a;border:1px solid #b6e6d4;border-radius:10px;padding:9px 13px;font-size:13px;font-weight:600;margin-top:14px}
+
+  footer{border-top:1px solid var(--line);padding:22px 0 40px;color:var(--mute);font-size:13px}
+  .grid2{display:grid;gap:10px}@media(min-width:560px){.grid2{grid-template-columns:1fr 1fr}}
+  .kbd{font-family:ui-monospace,Menlo,monospace;font-size:12px;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:1px 6px;color:var(--sub)}
 </style>
 </head>
 <body>
 <header class="top">
-  <div class="wrap top-inner">
+  <div class="wrap top-in">
     <span class="eyebrow">UX EXPERIMENTS · 온보딩</span>
     <h1>CatchUp 온보딩 Cold-start UX 실험</h1>
-    <p class="lede">조직 협업툴이 연동되기 전 "빈 깡통" 상태에서, 사용자가 가치를 경험하기 전에 설정 부담을 먼저 지는 문제를 어떻게 풀 것인가. 5개 설계 가설을 주제별로 비교합니다.</p>
-    <div class="meta">
-      <span><b>제약</b> 최소 1개 커넥터 · 본인 계정 매핑 · 사내 80% 매핑 시 임베딩 활성</span>
-      <span><b>대상</b> 신규 루트어드민 첫 진입</span>
-    </div>
+    <p class="lede">협업툴 연동 전 "빈 깡통" 상태에서, 사용자가 가치를 경험하기 전에 설정 부담을 먼저 지는 문제를 어떻게 풀 것인가. 5개 설계 가설을 주제별로 비교합니다.</p>
     <div class="callout">
       <h3>핵심 UX 난제</h3>
-      <p><span class="hl">가치를 경험하기 전에 설정 부담을 먼저 요구</span>한다. 각 실험은 이 부담을 낮추거나, 부담 이전에 동기를 심는 서로 다른 전략이다.</p>
+      <p><b>가치를 경험하기 전에 설정 부담을 먼저 요구</b>한다. 각 실험은 이 부담을 낮추거나, 부담 이전에 동기를 심는 서로 다른 전략이다. 카드·버튼을 직접 클릭해 상태 전환을 확인하세요.</p>
     </div>
   </div>
 </header>
 
-<div class="tabbar-outer">
-  <div class="wrap">
-    <div class="tabbar" id="tabbar"></div>
-  </div>
-</div>
-
+<div class="tabbar-outer"><div class="wrap"><div class="tabbar" id="tabbar"></div></div></div>
 <main class="wrap" id="panels"></main>
-
-<footer>
-  <div class="wrap">
-    제작 · CatchUp Design · 각 실험은 독립 실행형 인터랙티브 목업입니다. 카드를 클릭해 상태 전환을 직접 확인하세요.
-  </div>
-</footer>
+<footer><div class="wrap">CatchUp Design · 경량 단일 파일 목업 · 모든 데이터는 예시입니다.</div></footer>
 
 <script>
-const EXPERIMENTS = [
-  {
-    n:1, file:"experiment-1-value-preview.html",
-    tab:"가치 미리보기",
-    chip:"VALUE-FIRST",
-    title:"실험 1 · 연동 전 데모 답변 (Value-first preview)",
-    hyp:"연동 전에 <b>‘연동하면 이런 답을 받습니다’</b>를 샘플 답변·출처 카드로 미리 보여주면 설정 동기가 유지된다."
-  },
-  {
-    n:2, file:"experiment-2-progressive.html",
-    tab:"점진형 온보딩",
-    chip:"PROGRESSIVE",
-    title:"실험 2 · 점진형 온보딩 (Progressive)",
-    hyp:"4개를 한 번에 요구하지 않고 <b>‘1개만 먼저’</b> 연동시켜 작은 성공을 준 뒤 점진적으로 유도하면 완주율이 오른다."
-  },
-  {
-    n:3, file:"experiment-3-mapping-dashboard.html",
-    tab:"80% 매핑 대시보드",
-    chip:"TEAM PROGRESS",
-    title:"실험 3 · 80% 계정 매핑 대시보드",
-    hyp:"‘80% 매핑 시 임베딩 활성’ 조건을 <b>어드민이 팀원을 독려하는 진척 대시보드</b>로 풀면 cold-start가 빨라진다."
-  },
-  {
-    n:4, file:"experiment-4-empty-state.html",
-    tab:"빈 상태 가이드",
-    chip:"EMPTY STATE",
-    title:"실험 4 · 빈 화면을 가이드로 (Empty state as guide)",
-    hyp:"빈 홈을 ‘비어있음’이 아니라 <b>‘다음 할 일’</b>로 재정의하면 이탈이 준다. 연동·매핑 단계별 빈 상태를 가이드 화면으로."
-  },
-  {
-    n:5, file:"experiment-5-ab-comparison.html",
-    tab:"모달 vs 인라인 A/B",
-    chip:"A/B",
-    title:"실험 5 · 온보딩 모달 vs 인라인 (A/B 비교)",
-    hyp:"같은 온보딩을 <b>(A) 중앙 모달</b>과 <b>(B) 홈 인라인 배너+카드</b>로 제시했을 때 완주율·이탈이 어떻게 다른가."
-  }
+/* ---------- helpers ---------- */
+const el=(t,c,h)=>{const e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e;};
+const $=(s,r=document)=>r.querySelector(s);
+
+const META=[
+  {n:1,tab:"가치 미리보기",chip:"VALUE-FIRST",title:"실험 1 · 연동 전 데모 답변",hyp:"연동 전에 <b>‘연동하면 이런 답을 받습니다’</b>를 샘플 답변·출처로 미리 보여주면 설정 동기가 유지된다."},
+  {n:2,tab:"점진형 온보딩",chip:"PROGRESSIVE",title:"실험 2 · 점진형 온보딩",hyp:"4개를 한 번에 요구하지 않고 <b>‘1개만 먼저’</b> 연동시켜 작은 성공을 준 뒤 점진적으로 유도하면 완주율이 오른다."},
+  {n:3,tab:"80% 매핑 대시보드",chip:"TEAM PROGRESS",title:"실험 3 · 80% 계정 매핑 대시보드",hyp:"‘80% 매핑 시 임베딩 활성’ 조건을 <b>어드민이 팀원을 독려하는 진척 대시보드</b>로 풀면 cold-start가 빨라진다."},
+  {n:4,tab:"빈 상태 가이드",chip:"EMPTY STATE",title:"실험 4 · 빈 화면을 가이드로",hyp:"빈 홈을 ‘비어있음’이 아니라 <b>‘다음 할 일’</b>로 재정의하면 이탈이 준다. 연동·매핑 단계별 빈 상태를 가이드 화면으로."},
+  {n:5,tab:"모달 vs 인라인 A/B",chip:"A/B",title:"실험 5 · 온보딩 모달 vs 인라인",hyp:"같은 온보딩을 <b>(A) 중앙 모달</b>과 <b>(B) 홈 인라인 배너+카드</b>로 제시했을 때 완주율·이탈이 어떻게 다른가."}
 ];
 
-const tabbar = document.getElementById('tabbar');
-const panels = document.getElementById('panels');
-
-EXPERIMENTS.forEach((e, i)=>{
-  const tab = document.createElement('button');
-  tab.className = 'tab' + (i===0?' active':'');
-  tab.dataset.idx = i;
-  tab.innerHTML = `<span class="num">${e.n}</span>${e.tab}`;
-  tab.addEventListener('click', ()=>activate(i));
-  tabbar.appendChild(tab);
-
-  const panel = document.createElement('section');
-  panel.className = 'panel' + (i===0?' active':'');
-  panel.dataset.idx = i;
-  panel.innerHTML = `
-    <div class="panel-head">
-      <div class="titles">
-        <span class="chip">${e.chip}</span>
-        <h2>${e.title}</h2>
-        <p class="hyp"><b>가설</b> · ${e.hyp}</p>
-      </div>
-      <div class="actions">
-        <a class="btn" href="${encodeURI(e.file)}" target="_blank" rel="noopener">↗ 새 탭에서 열기</a>
-      </div>
-    </div>
-    <div class="frame-shell">
-      <div class="frame-bar">
-        <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
-        <span class="frame-url">/${encodeURI(e.file)}</span>
-        <span class="frame-load" id="load-${i}">불러오는 중…</span>
-      </div>
-      <iframe data-src="${encodeURI(e.file)}" title="${e.title}" loading="lazy"></iframe>
-    </div>`;
-  panels.appendChild(panel);
+const tabbar=$("#tabbar"), panels=$("#panels");
+META.forEach((m,i)=>{
+  const t=el("button","tab"+(i===0?" active":""),`<span class="n">${m.n}</span>${m.tab}`);
+  t.onclick=()=>activate(i); tabbar.appendChild(t);
+  const p=el("section","panel"+(i===0?" active":""));
+  p.dataset.i=i;
+  p.appendChild(el("div","phead",`<span class="chip">${m.chip}</span><h2>${m.title}</h2><p class="hyp"><b>가설</b> · ${m.hyp}</p>`));
+  const mount=el("div"); mount.id="exp"+m.n; p.appendChild(mount);
+  panels.appendChild(p);
 });
+function activate(i){
+  document.querySelectorAll('.tab').forEach((t,k)=>t.classList.toggle('active',k===i));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',+p.dataset.i===i));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+const appShell=(inner)=>`<div class="app"><div class="appbar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="brand-mini">CatchUp</span><span style="margin-left:auto">루트어드민 · 첫 진입</span></div><div class="body">${inner}</div></div>`;
 
-function loadFrame(i){
-  const panel = panels.querySelector(`.panel[data-idx="${i}"]`);
-  const frame = panel.querySelector('iframe');
-  if(!frame.src){
-    frame.src = frame.dataset.src;
-    frame.addEventListener('load', ()=>{
-      const l = document.getElementById('load-'+i); if(l) l.textContent='';
+/* ================= 실험 1 : Value-first ================= */
+(function(){
+  const root=$("#exp1");
+  const samples=[
+    {q:"지난 스프린트에서 결제 버그는 어떻게 처리됐어?",ctx:"Jira · Slack 기반",
+     a:"결제 모듈의 타임아웃 이슈는 <b>CAT-318</b>에서 재현 후, 재시도 로직 추가로 해결됐습니다. 손주완님이 2/14 배포했고 QA 통과 확인됨.",
+     src:[["jira","CAT-318 · 결제 타임아웃"],["slack","#dev-payments · 배포 알림"]]},
+    {q:"신규 입사자 온보딩 문서 최신 버전 어디 있어?",ctx:"Confluence 기반",
+     a:"가장 최근 갱신된 온보딩 가이드는 <b>‘[2026] 입사자 셋업 v3’</b>(Confluence, 6/2 수정)입니다. 이전 v2는 아카이브 처리됨.",
+     src:[["conf","입사자 셋업 v3"],["slack","#people-ops"]]},
+    {q:"이번 분기 우리 팀 OKR 진척 어때?",ctx:"Jira · Confluence 기반",
+     a:"3개 핵심결과 중 2개가 목표 달성(80%↑), 1개(리텐션)는 62%로 진행 중. 상세는 분기 리뷰 페이지 참고.",
+     src:[["jira","Q2 OKR Epic"],["conf","분기 리뷰 2026Q2"]]}
+  ];
+  function render(){
+    root.innerHTML=appShell(`
+      <div class="center" style="min-height:auto;padding-bottom:6px">
+        <div class="pill mute" style="margin-bottom:10px">연동 0개 · 아직 답변할 데이터가 없어요</div>
+        <h3 class="h-title">무엇이든 물어보면, CatchUp이 흩어진 기록에서 찾아 답해드려요</h3>
+        <p class="h-sub">아래는 <b>연동하면 받게 될 답변 미리보기</b>입니다. 눌러서 확인해보세요.</p>
+      </div>
+      <div id="qlist"></div>
+      <div id="ans"></div>`);
+    const ql=$("#qlist",root);
+    samples.forEach((s,i)=>{
+      const b=el("button","qchip",`${s.q}<small>${s.ctx}</small>`);
+      b.onclick=()=>showAns(i); ql.appendChild(b);
     });
   }
-}
+  function showAns(i){
+    const s=samples[i], box=$("#ans",root);
+    box.innerHTML=`
+      <div style="margin:16px 0 10px;font-size:13px;color:var(--mute)">미리보기 답변</div>
+      <div class="locked-answer">
+        <div class="blur">
+          <p style="margin:0 0 14px;font-size:14.5px;line-height:1.6">${s.a}</p>
+          <div class="grid2">${s.src.map(x=>`<div class="src"><span class="ic ${x[0]}">${x[0][0].toUpperCase()}</span>${x[1]}</div>`).join("")}</div>
+        </div>
+        <div class="lockmask">
+          <div class="lk">🔒</div>
+          <div style="font-weight:700;font-size:15px">연동하면 실제 데이터로 답해드려요</div>
+          <div class="note" style="max-width:280px">위 답변은 예시입니다. 협업툴을 연결하면 우리 조직의 실제 기록을 근거로 답합니다.</div>
+          <button class="btn pri" onclick="alert('→ 협업툴 연동 플로우로 이동 (목업)')">협업툴 연동하고 실제 답변 받기</button>
+        </div>
+      </div>`;
+    box.scrollIntoView({behavior:"smooth",block:"nearest"});
+  }
+  render();
+})();
 
-function activate(i){
-  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', +t.dataset.idx===i));
-  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active', +p.dataset.idx===i));
-  loadFrame(i);
-  window.scrollTo({top:0, behavior:'smooth'});
-}
+/* ================= 실험 2 : Progressive ================= */
+(function(){
+  const root=$("#exp2");
+  const tools=[["jira","Jira","이슈·스프린트 기록"],["conf","Confluence","문서·위키"],["slack","Slack","대화·결정 맥락"],["git","Github","PR·커밋 이력"]];
+  let connected=[];
+  function render(){
+    const step=Math.min(connected.length,1)?(connected.length>=4?4:(connected.length+1)):1;
+    const done=connected.length;
+    root.innerHTML=appShell(`
+      <div class="stepdots">${[0,1,2,3].map(k=>`<i class="${k<done?'done':(k===done?'on':'')}"></i>`).join("")}</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+        <h3 class="h-title" style="margin:0">${done===0?"먼저 딱 1개만 연결해볼까요?":done<4?"좋아요! 더 연결하면 더 정확해져요":"모든 도구가 연결됐어요 🎉"}</h3>
+        <span class="pill ${done>=1?'ok':'mute'}">${done}/4 연동</span>
+      </div>
+      <p class="h-sub">${done===0?"4개를 한 번에 할 필요 없어요. 하나만 연결해도 바로 첫 답변을 받아볼 수 있어요.":done<4?"방금 연결로 일부 답변이 가능해졌어요. 나머지를 더하면 누락 없는 답을 받습니다.":"이제 모든 협업툴 기록을 근거로 답변할 수 있어요."}</p>
+      <div id="conns"></div>
+      <div id="reward"></div>
+      <div style="display:flex;gap:8px;margin-top:16px;align-items:center">
+        <button class="btn pri" ${done>=1?'':'disabled'} onclick="alert('→ 홈으로 이동해 첫 질문 시작 (목업)')">${done>=1?'지금 질문 시작하기':'1개 이상 연결 필요'}</button>
+        <button class="btn ghost" onclick="alert('나중에 하기 — 단, 연동 전에는 답변 정확도가 제한됩니다 (목업)')">나중에 하기</button>
+      </div>`);
+    const c=$("#conns",root);
+    tools.forEach(t=>{
+      const on=connected.includes(t[0]);
+      const row=el("div","conn",`<span class="ic ${t[0]} src" style="display:grid;place-items:center;color:#fff">${t[1][0]}</span>
+        <div class="meta"><b>${t[1]}</b><div>${t[2]}</div></div>
+        ${on?'<span class="pill ok">연결됨 ✓</span>':`<button class="btn sm pri" data-t="${t[0]}">연결</button>`}`);
+      const btn=row.querySelector("button"); if(btn)btn.onclick=()=>connect(t[0]);
+      c.appendChild(row);
+    });
+    if(done>=1 && done<4){
+      $("#reward",root).innerHTML=`<div class="toast">🔓 첫 보상 해금 — “${connected[0].toUpperCase()}” 기록 기반 질문이 가능해졌어요</div>`;
+    }
+  }
+  function connect(id){ if(!connected.includes(id))connected.push(id); render(); }
+  render();
+})();
 
-// load first frame on start
-loadFrame(0);
+/* ================= 실험 3 : Mapping dashboard ================= */
+(function(){
+  const root=$("#exp3");
+  const members=[
+    ["김서연","디자인","KS",true],["박민준","백엔드","PM",true],["이도윤","프론트","LD",false],
+    ["정하은","PM","JH",true],["최우진","백엔드","CW",false],["한지우","데이터","HJ",true],
+    ["오세진","프론트","OS",false],["윤가람","디자인","YG",true]
+  ];
+  const TARGET=80;
+  let extra=0; // reminders push some unmapped to mapped
+  function rate(){
+    const base=members.filter(m=>m[3]).length;
+    const mapped=Math.min(members.length, base+extra);
+    return Math.round(mapped/members.length*100);
+  }
+  function render(){
+    const r=rate(), hit=r>=TARGET;
+    const byTool=[["jira","Jira",88],["conf","Confluence",75],["slack","Slack",63],["git","Github",50]];
+    root.innerHTML=appShell(`
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <h3 class="h-title" style="margin:0">계정 매핑 진척</h3>
+        <span class="pill ${hit?'ok':'warn'}">${hit?'임베딩 활성 가능 ✓':'목표 '+TARGET+'%까지 '+(TARGET-r)+'%p'}</span>
+      </div>
+      <p class="h-sub">사내 사용자의 ${TARGET}% 이상이 협업툴 계정을 매핑하면 정확한 답변(임베딩)이 켜집니다.</p>
+      <div style="display:flex;align-items:center;gap:14px;margin:6px 0 4px">
+        <div style="font-size:30px;font-weight:800;letter-spacing:-.02em">${r}<span style="font-size:16px;color:var(--mute)">%</span></div>
+        <div style="flex:1"><div class="bar ${hit?'ok':''}"><i style="width:${r}%"></i></div>
+        <div class="note" style="margin-top:6px">전체 ${members.length}명 중 ${Math.round(r/100*members.length)}명 매핑 · 목표선 ${TARGET}%</div></div>
+      </div>
+      ${hit?'<div class="toast" style="margin:10px 0 4px">🎉 80% 도달 — 임베딩이 활성화되어 정확한 답변이 가능해졌어요</div>':''}
+      <div style="margin:18px 0 8px;font-size:13px;font-weight:700;color:var(--sub)">협업툴별 매핑률</div>
+      <div class="grid2">${byTool.map(t=>`<div class="src" style="display:block"><div style="display:flex;align-items:center;gap:8px;margin-bottom:7px"><span class="ic ${t[0]}">${t[1][0]}</span><b style="color:var(--text)">${t[1]}</b><span style="margin-left:auto;font-weight:700;color:var(--text)">${t[2]}%</span></div><div class="bar"><i style="width:${t[2]}%"></i></div></div>`).join("")}</div>
+      <div style="margin:20px 0 6px;display:flex;align-items:center;justify-content:space-between">
+        <div style="font-size:13px;font-weight:700;color:var(--sub)">미등록 팀원</div>
+        <button class="btn sm" id="remindAll">미등록자에게 일괄 리마인드</button>
+      </div>
+      <div id="mlist"></div>`);
+    const ml=$("#mlist",root);
+    members.forEach((m,idx)=>{
+      const mappedNow = m[3] || (idx in remindedSet);
+      const row=el("div","row",`<span class="avatar">${m[2]}</span>
+        <div style="flex:1"><b style="font-size:14px">${m[0]}</b> <span class="note">· ${m[1]}</span></div>
+        ${m[3]?'<span class="pill ok">등록 ✓</span>':(idx in remindedSet?'<span class="pill warn">리마인드 보냄</span>':`<button class="btn sm" data-i="${idx}">리마인드</button>`)}`);
+      const b=row.querySelector("button[data-i]"); if(b)b.onclick=()=>remind(idx);
+      ml.appendChild(row);
+    });
+    $("#remindAll",root).onclick=()=>{members.forEach((m,i)=>{if(!m[3])remindedSet[i]=1;}); extra=Object.keys(remindedSet).length; render();};
+  }
+  let remindedSet={};
+  function remind(i){ remindedSet[i]=1; extra=Object.keys(remindedSet).length; render(); }
+  render();
+})();
+
+/* ================= 실험 4 : Empty state as guide ================= */
+(function(){
+  const root=$("#exp4");
+  const states={
+    s0:{label:"연동 0개",title:"아직 연결된 협업툴이 없어요",sub:"기록을 가져오려면 최소 1개 커넥터 연결이 필요해요.",
+        steps:[["연결된 커넥터 1개 이상",false],["본인 계정 매핑",false],["사내 80% 매핑",false]],cta:"협업툴 연동하기"},
+    s1:{label:"연동O · 매핑 미완",title:"연결됐어요. 이제 본인 계정을 매핑해주세요",sub:"각 협업툴에서 본인 계정을 등록해야 ‘내 작업’이 답변에 반영돼요.",
+        steps:[["연결된 커넥터 1개 이상",true],["본인 계정 매핑",false],["사내 80% 매핑",false]],cta:"내 계정 매핑하기"},
+    s2:{label:"80% 미달",title:"거의 다 왔어요 — 팀 매핑률 62%",sub:"사내 80% 매핑 시 정확한 답변(임베딩)이 켜집니다. 팀원에게 매핑을 독려해보세요.",
+        steps:[["연결된 커넥터 1개 이상",true],["본인 계정 매핑",true],["사내 80% 매핑 (현재 62%)",false]],cta:"매핑 대시보드 열기"}
+  };
+  let cur="s0";
+  function render(){
+    const s=states[cur];
+    root.innerHTML=`
+      <div class="seg">${Object.keys(states).map(k=>`<button class="${k===cur?'on':''}" data-k="${k}">${states[k].label}</button>`).join("")}</div>
+      ${appShell(`
+        <div class="center" style="min-height:280px">
+          <div style="width:54px;height:54px;border-radius:16px;background:var(--brand-soft);color:var(--brand);display:grid;place-items:center;font-size:24px;margin-bottom:14px">🧭</div>
+          <h3 class="h-title">${s.title}</h3>
+          <p class="h-sub">${s.sub}</p>
+          <div style="text-align:left;width:min(360px,100%);margin-bottom:18px">
+            ${s.steps.map(st=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;font-size:14px;color:${st[1]?'var(--mute)':'var(--text)'}">
+              <span style="width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font-size:12px;color:#fff;background:${st[1]?'var(--ok)':'#cfd4db'}">${st[1]?'✓':''}</span>
+              <span style="${st[1]?'text-decoration:line-through':''}">${st[0]}</span></div>`).join("")}
+          </div>
+          <button class="btn pri" onclick="alert('→ ${s.cta} (목업)')">${s.cta}</button>
+          <div class="note" style="margin-top:10px">다음 할 일 한 가지만 안내 — 막연한 ‘빈 화면’ 대신 진행 가능한 행동을 제시</div>
+        </div>`)}`;
+    root.querySelectorAll('.seg button').forEach(b=>b.onclick=()=>{cur=b.dataset.k;render();});
+  }
+  render();
+})();
+
+/* ================= 실험 5 : A/B modal vs inline ================= */
+(function(){
+  const root=$("#exp5");
+  let variant="A", closed=false, warn=false;
+  const homeSkel=`<div class="home-skel">
+      <div class="skel" style="width:40%;height:16px"></div>
+      <div class="skel" style="width:90%"></div><div class="skel" style="width:80%"></div>
+      <div class="skel" style="width:60%"></div>
+      <div class="skel" style="width:100%;height:46px;border-radius:12px;margin-top:14px;background:#e7eaef"></div>
+    </div>`;
+  function render(){
+    root.innerHTML=`
+      <div class="seg">
+        <button class="${variant==='A'?'on':''}" data-v="A">A · 중앙 모달</button>
+        <button class="${variant==='B'?'on':''}" data-v="B">B · 홈 인라인</button>
+      </div>
+      <div class="note" style="margin:-8px 0 14px">동일한 온보딩 콘텐츠를 두 진입 방식으로 비교. 닫기(X)를 누르면 각 버전의 이탈 처리를 확인할 수 있어요.</div>
+      ${appShell(`<div class="scrim">${homeSkel}${overlay()}</div>`)}`;
+    root.querySelectorAll('.seg button').forEach(b=>b.onclick=()=>{variant=b.dataset.v;closed=false;warn=false;render();});
+    const x=$("#closeBtn",root); if(x)x.onclick=()=>{warn=true;render();};
+    const r=$("#resetBtn",root); if(r)r.onclick=()=>{closed=false;warn=false;render();};
+    const w=$("#warnClose",root); if(w)w.onclick=()=>{closed=true;warn=false;render();};
+    const k=$("#keepBtn",root); if(k)k.onclick=()=>{warn=false;render();};
+  }
+  function overlay(){
+    if(closed){
+      return `<div class="banner" style="position:absolute;left:0;right:0;bottom:12px">⚠️ 최소 1개 이상의 협업툴을 연동해야 질문을 시작할 수 있어요.
+        <button class="btn sm pri" style="margin-left:auto" id="resetBtn">연동하러 가기</button></div>`;
+    }
+    if(warn){
+      return `<div class="modal">
+        <div style="font-size:30px">🚧</div>
+        <h3 class="h-title" style="margin-top:8px">지금 닫으시겠어요?</h3>
+        <p class="note" style="margin:0 0 14px">최소 1개 연동 전에는 질문을 시작할 수 없어요.</p>
+        <div style="display:flex;gap:8px;justify-content:center">
+          <button class="btn" id="warnClose">그래도 닫기</button>
+          <button class="btn pri" id="keepBtn">계속 연동하기</button>
+        </div></div>`;
+    }
+    if(variant==="A"){
+      return `<div style="position:absolute;inset:0;background:rgba(20,23,28,.32)"></div>
+      <div class="modal">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <span class="pill mute">시작하기 1/4</span>
+          <button class="btn ghost sm" id="closeBtn" style="padding:2px 8px">✕</button>
+        </div>
+        <div style="font-size:30px;margin:6px 0">👋</div>
+        <h3 class="h-title">흩어진 업무 기록, 질문 한 번에</h3>
+        <p class="note" style="margin:0 0 16px">여러 협업툴을 오갈 필요 없이, CatchUp이 관련 기록을 모아 답하고 출처까지 보여드려요.</p>
+        <button class="btn pri" style="width:100%" onclick="alert('→ 다음 카드 (목업)')">협업 툴 연동하기</button>
+        <button class="btn ghost sm" style="margin-top:6px" id="keepBtn2">나중에</button>
+      </div>`;
+    }
+    // variant B: inline
+    return `<div style="position:absolute;left:0;right:0;top:0">
+        <div class="banner" style="border-radius:0;margin:0;justify-content:space-between">
+          <span>👋 시작하려면 협업 툴을 연결해주세요 <b>(1/4)</b></span>
+          <span style="display:flex;gap:6px"><button class="btn sm pri" onclick="alert('→ 연동 (목업)')">연동하러 가기</button>
+          <button class="btn ghost sm" id="closeBtn" style="padding:4px 8px">✕</button></span>
+        </div>
+      </div>
+      <div style="position:absolute;left:14px;right:14px;bottom:14px;display:flex;gap:10px">
+        <div class="src" style="flex:1;display:block"><b style="color:var(--text)">① 협업툴 연결</b><div class="note">최소 1개</div></div>
+        <div class="src" style="flex:1;display:block;opacity:.6"><b style="color:var(--text)">② 계정 매핑</b><div class="note">본인 등록</div></div>
+        <div class="src" style="flex:1;display:block;opacity:.6"><b style="color:var(--text)">③ 질문 시작</b><div class="note">80% 매핑 후</div></div>
+      </div>`;
+  }
+  render();
+  // delegate keepBtn2 (variant A "나중에")
+  root.addEventListener('click',e=>{ if(e.target&&e.target.id==='keepBtn2'){alert('나중에 — 홈 상단 배너로 연동 유도 유지 (목업)');}});
+})();
 </script>
 </body>
 </html>
